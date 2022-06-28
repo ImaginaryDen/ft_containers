@@ -1,17 +1,14 @@
 #include <vector>
+#include <list>
 #include <iostream>
-#include "stack/stack.hpp"
+//#include "stack/stack.hpp"
+//#include "vector/vector.hpp"
 
 int main()
 {
-	std::vector<int> arr = {1, 2, 3, 4, 5};
-	ft::stack<int> d(arr);
-
-	while(!d.empty())
-	{
-
-		std::cout << d.top() << ' ';
-		d.pop();
-	}
-	std::cout << std::endl;
+	std::vector<int> a;
+	a.resize(100);
+	a.resize(10);
+	std::cout << a.capacity() << "\n";
+	a.at(9);
 }
