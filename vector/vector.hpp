@@ -2,6 +2,7 @@
 #define VECTOR_HPP
 
 #include <memory>
+#include "vector_iterator.hpp"
 
 namespace ft{
 
@@ -17,9 +18,10 @@ public:
 		typedef const value_type& const_reference;
 		typedef typename Allocator::pointer pointer;
 		typedef typename Allocator::const_pointer const_pointer;
-		/*
+
 		typedef RandomAccessIterator<value_type> iterator;
 		typedef RandomAccessIterator<const value_type> const_iterator;
+		/*
 		typedef reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef reverse_iterator<iterator> reverse_iterator;
 		 */
@@ -53,13 +55,13 @@ public:
 		push_iterator(first, last);
 	}
 
-	vector(const vector& other) : _alloc(allocator_type()) _size(0), _capacity(0)
-		{ *this = other }
+	vector(const vector& other) : _alloc(allocator_type()), _size(0), _capacity(0)
+		{ *this = other; }
 
 	/* Destructor */
 	~vector()
 	{
-		for(size_type i = 0; i < size; ++i)
+		for(size_type i = 0; i < _size; ++i)
 			_alloc.destroy(_start + i);
 		if(_capacity)
 			_alloc.deallocate(_start, _capacity);
@@ -68,9 +70,9 @@ public:
 	/* operator = */
 	vector& operator=(const vector& other)
 	{
-		if (this == &x)
+		if (this == &other)
 			return *this;
-		for(size_type i = 0; i < size; ++i)
+		for(size_type i = 0; i < _size; ++i)
 			_alloc.destroy(_start + i);
 		_size = 0;
 		push_iterator(other.begin, other.end());
@@ -91,19 +93,45 @@ public:
 	reference at(size_type index)
 	{
 		if (index > _size)
-			throw std::out_of_range;
+			throw std::out_of_range("vector at out of range");
 		return _start[index];
 	}
 
 	const_reference at(size_type index) const
 	{
 		if (index > _size)
-			throw std::out_of_range;
+			throw std::out_of_range("vector at out of range");
 		return _start[index];
 	}
 
+	/* reserve() */
 
+	void reserve(size_type n){
+		if (n < _capacity)
+			return ;
+		pointer new_ptr = _alloc.allocate(n);
+		size_type i = 0;
+		try{
+			for(; i < _size ; ++i)
+				_alloc.construct(new_ptr, _start[i]);
+		}catch(...){
+			for (size_type j = 0; j < i; ++j)
+				_alloc.destroy(new_ptr + i);
+			_alloc.deallocate(new_ptr, n);
+			throw ;
+		}
+		this->~vector();
+		_capacity = n;
+		_start = new_ptr;
+	}
 
+	/* push_back() */
+	void push_back(const reference value)
+	{
+		if (_size >= _capacity)
+			reserve(_capacity * 2);
+		_alloc.construct(_start + _size++, value);
+	}
 
 	/* TODO:
 	 * после добавления enable_if и is_integral в проект поменять конструктор
@@ -117,13 +145,11 @@ public:
 	 * empty
 	 * size
 	 * max_size
-	 * reserve
 	 * capacity
 	 * clear
 	 * insert
 	 * emplace
 	 * erase
-	 * push_back
 	 * pop_back
 	 * resize
 	 * swap
@@ -137,7 +163,7 @@ private:
 		try
 		{
 			for (;first != last; ++first)
-				/*push_back(*first)*/;
+				push_back(*first);
 		}
 		catch (...)
 		{

@@ -1,8 +1,8 @@
 #include <vector>
 #include <list>
 #include <iostream>
-//#include "stack/stack.hpp"
-//#include "vector/vector.hpp"
+#include "stack/stack.hpp"
+#include "vector/vector.hpp"
 
 int main()
 {
