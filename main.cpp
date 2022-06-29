@@ -7,6 +7,7 @@
 int main()
 {
 	std::vector<int> a;
+
 	a.resize(100);
 	a.resize(10);
 	std::cout << a.capacity() << "\n";

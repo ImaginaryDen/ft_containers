@@ -105,9 +105,8 @@ public:
 	}
 
 	/* reserve() */
-
 	void reserve(size_type n){
-		if (n < _capacity)
+		if (n <= _capacity)
 			return ;
 		pointer new_ptr = _alloc.allocate(n);
 		size_type i = 0;
@@ -126,35 +125,115 @@ public:
 	}
 
 	/* push_back() */
-	void push_back(const reference value)
+	void push_back(const_reference value)
 	{
 		if (_size >= _capacity)
 			reserve(_capacity * 2);
 		_alloc.construct(_start + _size++, value);
 	}
 
+	/* clear */
+	void clear(){
+		for (size_type i = 0; i < _size; i++)
+			_allocator.destroy(_first + i);
+		_size = 0;
+	}
+
+	/*assign*/
+	void assign (size_type n, const value_type& val){
+		clear();
+		reserve(n);
+		for (size_type i = 0; i < n; i++)
+			_allocator.construct(_first + i, val);
+		_size = n;
+	}
+
+	template <class InputIterator> // Поменять 3 аргумент на свой
+	void assign (InputIterator first, InputIterator last, typename std::enable_if<!std::is_integral<InputIterator>::value>::type* = 0 ){
+		clear();
+		push_iterator(first, last);
+	}
+
+	/* get_allocator */
+	allocator_type get_allocator() const
+	{ return _alloc; }
+
+	/* front */
+	reference front()
+	{ return *_start; }
+
+	const_reference front() const
+	{ return *_start; }
+
+	/* back */
+
+	reference back()
+	{return _start[size - 1]; }
+
+	const_reference back() const
+	{return _start[size - 1]; }
+
+	/* data */
+	pointer data()
+	{ return _start; }
+
+	/* empty */
+	bool empty() const
+	{ return _size == 0; }
+
+	/* size */
+	size_type size() const
+	{ return _size; }
+
+	/* max_size */
+	size_type max_size() const{
+		return _allocator.max_size();
+	}
+
+	/* capacity */
+	size_type capacity() const {
+		return _capacity;
+	}
+	/* insert */
+	void insert(iterator pos, const_reference val)
+	{}
+
+	/* pop_back */
+	void pop_back()
+	{
+		if(!size)/* Нужна ли проверка? */
+			return ;
+		--_size;
+		_alloc.destroy(_start + _size);
+	}
+
+	/* resize */
+	void resize( size_type count, const_reference value = value_type() )
+	{
+		reserve(count);
+		for(;_size > count; --_size)
+			allocator.destroy(_first + _size - 1);
+		for(;_size < count;++_size)
+			_allocator.construct(_first + _size, val);
+	}
+
+	/* swap */
+	void swap (vector& other){
+		std::swap(_first, other._first);
+		std::swap(_size, other._size);
+		std::swap(_capacity, other._capacity);
+		std::swap(_allocator, other._allocator);
+
+	}
+
 	/* TODO:
-	 * после добавления enable_if и is_integral в проект поменять конструктор
-	 * assign
-	 * get_allocator
-	 * front
-	 * back
-	 * data
+	 * после добавления enable_if и is_integral в проект поменять конструктор и в assign
 	 * Iterator
 	 * Iterator access
-	 * empty
-	 * size
-	 * max_size
-	 * capacity
-	 * clear
 	 * insert
-	 * emplace
 	 * erase
-	 * pop_back
-	 * resize
-	 * swap
 	 * Non-member functions
-	 * erase*/
+	 * */
 
 private:
 	template <class InputIterator>
@@ -173,6 +252,13 @@ private:
 	}
 };
 
+}
+
+namespace std{
+	template< class T, class Alloc >
+	void swap(ft::vector<T,Alloc>& lhs, ft::vector<T,Alloc>& rhs ) {
+		lhs.swap(rhs);
+	}
 }
 
 #endif //VECTOR_HPP
