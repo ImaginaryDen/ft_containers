@@ -12,4 +12,5 @@ int main()
 	a.resize(10);
 	std::cout << a.capacity() << "\n";
 	a.at(9);
+
 }

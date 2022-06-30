@@ -135,7 +135,7 @@ public:
 	/* clear */
 	void clear(){
 		for (size_type i = 0; i < _size; i++)
-			_allocator.destroy(_first + i);
+			_alloc.destroy(_start + i);
 		_size = 0;
 	}
 
@@ -144,7 +144,7 @@ public:
 		clear();
 		reserve(n);
 		for (size_type i = 0; i < n; i++)
-			_allocator.construct(_first + i, val);
+			_alloc.construct(_start + i, val);
 		_size = n;
 	}
 
@@ -166,7 +166,6 @@ public:
 	{ return *_start; }
 
 	/* back */
-
 	reference back()
 	{return _start[size - 1]; }
 
@@ -187,7 +186,7 @@ public:
 
 	/* max_size */
 	size_type max_size() const{
-		return _allocator.max_size();
+		return _alloc.max_size();
 	}
 
 	/* capacity */
@@ -195,8 +194,8 @@ public:
 		return _capacity;
 	}
 	/* insert */
-	void insert(iterator pos, const_reference val)
-	{}
+/*	void insert(iterator pos, const_reference val)
+	{}*/
 
 	/* pop_back */
 	void pop_back()
@@ -212,23 +211,23 @@ public:
 	{
 		reserve(count);
 		for(;_size > count; --_size)
-			allocator.destroy(_first + _size - 1);
+			_alloc.destroy(_start + _size - 1);
 		for(;_size < count;++_size)
-			_allocator.construct(_first + _size, val);
+			_alloc.construct(_start + _size, value);
 	}
 
 	/* swap */
 	void swap (vector& other){
-		std::swap(_first, other._first);
+		std::swap(_start, other._start);
 		std::swap(_size, other._size);
 		std::swap(_capacity, other._capacity);
-		std::swap(_allocator, other._allocator);
+		std::swap(_alloc, other._alloc);
 
 	}
 
 	/* TODO:
 	 * после добавления enable_if и is_integral в проект поменять конструктор и в assign
-	 * Iterator
+	 * Iterator +- готово
 	 * Iterator access
 	 * insert
 	 * erase
