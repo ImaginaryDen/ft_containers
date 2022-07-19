@@ -2,6 +2,7 @@
 #define VECTOR_HPP
 
 #include <memory>
+#include "../utility/utility.hpp"
 #include "vector_iterator.hpp"
 
 namespace ft{
@@ -46,10 +47,9 @@ public:
 			_alloc.construct(_start + i, value);
 	}
 
-	/* Изменить последний аргумент на свой */
 	template <class InputIterator>
 	vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
-				typename std::enable_if<!std::is_integral<InputIterator>::value>::type* = 0 )
+				typename enable_if<!is_integral<InputIterator>::value>::type* = 0 )
 		 : _alloc(alloc), _size(0), _capacity(0)
 	{
 		push_iterator(first, last);
@@ -112,7 +112,7 @@ public:
 		size_type i = 0;
 		try{
 			for(; i < _size ; ++i)
-				_alloc.construct(new_ptr, _start[i]);
+				_alloc.construct(new_ptr + i, _start[i]);
 		}catch(...){
 			for (size_type j = 0; j < i; ++j)
 				_alloc.destroy(new_ptr + i);
@@ -139,8 +139,8 @@ public:
 		_size = 0;
 	}
 
-	/*assign*/
-	void assign (size_type n, const value_type& val){
+	/* assign */
+	void assign (size_type n, const_reference val){
 		clear();
 		reserve(n);
 		for (size_type i = 0; i < n; i++)
@@ -148,8 +148,8 @@ public:
 		_size = n;
 	}
 
-	template <class InputIterator> // Поменять 3 аргумент на свой
-	void assign (InputIterator first, InputIterator last, typename std::enable_if<!std::is_integral<InputIterator>::value>::type* = 0 ){
+	template <class InputIterator>
+	void assign (InputIterator first, InputIterator last, typename enable_if<!is_integral<InputIterator>::value>::type* = 0 ){
 		clear();
 		push_iterator(first, last);
 	}
@@ -193,6 +193,7 @@ public:
 	size_type capacity() const {
 		return _capacity;
 	}
+
 	/* insert */
 /*	void insert(iterator pos, const_reference val)
 	{}*/
@@ -225,10 +226,66 @@ public:
 
 	}
 
+	iterator begin(){
+		return (iterator(_start));
+	}
+	const_iterator begin() const{
+		return (const_iterator(_start));
+	}
+	iterator end(){
+		return (iterator(_start + _size));
+	}
+	const_iterator end() const{
+		return (const_iterator(_start + _size));
+	}
+/*
+	reverse_iterator rbegin(){
+		return (reverse_iterator(end()));
+	}
+	const_reverse_iterator rbegin() const{
+		return (const_reverse_iterator(end()));
+	}
+	reverse_iterator rend(){
+		return (reverse_iterator(begin()));
+	}
+	const_reverse_iterator rend() const{
+		return (const_reverse_iterator(begin()));
+	}
+*/
+
+	iterator insert(iterator pos, const_reference val)
+	{
+		if (position < begin() || position > end())
+			throw std::logic_error("vector");
+		if (pos == end())
+		{	push_back(val);	return --end()	}
+		size_type i_pos = begin() - pos;
+		if (_size == _capacity)
+		{
+			_capacity = _capacity * 2 + (_capacity == 0);
+			pointer new_ptr = _alloc.allocate(_capacity);
+			size_type i = 0;
+			try{
+				for(; i < _size ; ++i)
+					if (i_pos == i)
+						_alloc.construact(new_ptr + i, val);
+					else
+						_alloc.construct(new_ptr + i + (i_pos < i), _start[i]);
+			}catch(...){
+				for (size_type j = 0; j < i; ++j)
+					_alloc.destroy(new_ptr + i);
+				_alloc.deallocate(new_ptr, _capacity);
+				throw ;
+			}
+			this->~vector();
+			_start = new_ptr;
+			return iterator (_start + i_pos);
+		}
+		// Не дописал
+	}
+
 	/* TODO:
-	 * после добавления enable_if и is_integral в проект поменять конструктор и в assign
 	 * Iterator +- готово
-	 * Iterator access
 	 * insert
 	 * erase
 	 * Non-member functions
