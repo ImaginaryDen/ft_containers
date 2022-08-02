@@ -255,10 +255,10 @@ public:
 
 	iterator insert(iterator pos, const_reference val)
 	{
-		if (position < begin() || position > end())
+		if (pos < begin() || pos > end())
 			throw std::logic_error("vector");
 		if (pos == end())
-		{	push_back(val);	return --end()	}
+		{	push_back(val);	return --end(); }
 		size_type i_pos = begin() - pos;
 		if (_size == _capacity)
 		{
@@ -281,7 +281,47 @@ public:
 			_start = new_ptr;
 			return iterator (_start + i_pos);
 		}
-		// Не дописал
+		for (size_type i = _size; i > i_pos; i--){
+			_alloc.destroy(_start + i);
+			_alloc.construct(_start + i, *(_start + i - 1));
+		}
+		_alloc.destroy(&(*pos));
+		_alloc.construct(&(*pos), val);
+		_size++;
+		return iterator(_start + i_pos);
+	}
+
+	void insert (iterator position, size_type n, const_reference val){
+		if (n == 0)
+			return ;
+		else if (max_size() - _size < n)
+			throw std::length_error("vector");
+		difference_type start = position - begin();
+		if (_size + n > _capacity){
+			size_type new_cap = _capacity * 2 >= _size + n ? _capacity * 2 : _size + n;
+			pointer new_arr = _allocator.allocate(new_cap);
+			std::uninitialized_copy(begin(), position, iterator(new_arr));
+			for (size_type i = 0; i < n; i++)
+				_allocator.construct(new_arr + start + i, val);
+			std::uninitialized_copy(position, end(), iterator(new_arr + start + n));
+			for (size_type i = 0; i < _size; i++)
+				_allocator.destroy(_first + i);
+			_allocator.deallocate(_first, _capacity);
+			_size += n;
+			_capacity = new_cap;
+			_first = new_arr;
+		}
+		else {
+			for (size_type i = _size; i > static_cast<size_type>(start); i--) {
+				_allocator.destroy(_first + i + n - 1);
+				_allocator.construct(_first + i + n - 1, *(_first + i - 1));
+			}
+			for (size_type i = 0; i < n; i++){
+				_allocator.destroy(_first + i + start);
+				_allocator.construct(_first + i + start, val);
+			}
+			_size += n;
+		}
 	}
 
 	/* TODO:
