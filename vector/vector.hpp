@@ -29,42 +29,42 @@ public:
 
 private:
 
-	pointer			_start;
+	pointer			_first;
 	size_type		_size, _capacity;
-	allocator_type	_alloc;
+	allocator_type	_allocator;
 
 public:
 
 	/* Constructor */
 	explicit vector( const allocator_type& alloc = allocator_type())
-		: _alloc(alloc), _start(NULL), _size(0), _capacity(0) {}
+		: _allocator(alloc), _first(NULL), _size(0), _capacity(0) {}
 
 	explicit vector( size_type count, const value_type& value = value_type(), const allocator_type& alloc = allocator_type())
-		: _alloc(alloc), _start(NULL), _size(count), _capacity(count)
+		: _allocator(alloc), _first(NULL), _size(count), _capacity(count)
 	{
-		_start = _alloc.allocate(count);
+		_first = _allocator.allocate(count);
 		for(size_type i = 0; i < count; ++i)
-			_alloc.construct(_start + i, value);
+			_allocator.construct(_first + i, value);
 	}
 
 	template <class InputIterator>
 	vector (InputIterator first, InputIterator last, const allocator_type& alloc = allocator_type(),
 				typename enable_if<!is_integral<InputIterator>::value>::type* = 0 )
-		 : _alloc(alloc), _size(0), _capacity(0)
+		 : _allocator(alloc), _size(0), _capacity(0)
 	{
 		push_iterator(first, last);
 	}
 
-	vector(const vector& other) : _alloc(allocator_type()), _size(0), _capacity(0)
+	vector(const vector& other) : _allocator(allocator_type()), _size(0), _capacity(0)
 		{ *this = other; }
 
 	/* Destructor */
 	~vector()
 	{
 		for(size_type i = 0; i < _size; ++i)
-			_alloc.destroy(_start + i);
+			_allocator.destroy(_first + i);
 		if(_capacity)
-			_alloc.deallocate(_start, _capacity);
+			_allocator.deallocate(_first, _capacity);
 	}
 
 	/* operator = */
@@ -73,7 +73,7 @@ public:
 		if (this == &other)
 			return *this;
 		for(size_type i = 0; i < _size; ++i)
-			_alloc.destroy(_start + i);
+			_allocator.destroy(_first + i);
 		_size = 0;
 		push_iterator(other.begin, other.end());
 	}
@@ -81,12 +81,12 @@ public:
 	/* operator [] */
 	reference operator[](size_type index)
 	{
-		return _start[index];
+		return _first[index];
 	}
 
 	const_reference operator[](size_type index) const
 	{
-		return _start[index];
+		return _first[index];
 	}
 
 	/* at */
@@ -94,34 +94,34 @@ public:
 	{
 		if (index > _size)
 			throw std::out_of_range("vector at out of range");
-		return _start[index];
+		return _first[index];
 	}
 
 	const_reference at(size_type index) const
 	{
 		if (index > _size)
 			throw std::out_of_range("vector at out of range");
-		return _start[index];
+		return _first[index];
 	}
 
 	/* reserve() */
 	void reserve(size_type n){
 		if (n <= _capacity)
 			return ;
-		pointer new_ptr = _alloc.allocate(n);
+		pointer new_ptr = _allocator.allocate(n);
 		size_type i = 0;
 		try{
 			for(; i < _size ; ++i)
-				_alloc.construct(new_ptr + i, _start[i]);
+				_allocator.construct(new_ptr + i, _first[i]);
 		}catch(...){
 			for (size_type j = 0; j < i; ++j)
-				_alloc.destroy(new_ptr + i);
-			_alloc.deallocate(new_ptr, n);
+				_allocator.destroy(new_ptr + i);
+			_allocator.deallocate(new_ptr, n);
 			throw ;
 		}
 		this->~vector();
 		_capacity = n;
-		_start = new_ptr;
+		_first = new_ptr;
 	}
 
 	/* push_back() */
@@ -129,13 +129,13 @@ public:
 	{
 		if (_size >= _capacity)
 			reserve(_capacity * 2);
-		_alloc.construct(_start + _size++, value);
+		_allocator.construct(_first + _size++, value);
 	}
 
 	/* clear */
 	void clear(){
 		for (size_type i = 0; i < _size; i++)
-			_alloc.destroy(_start + i);
+			_allocator.destroy(_first + i);
 		_size = 0;
 	}
 
@@ -144,7 +144,7 @@ public:
 		clear();
 		reserve(n);
 		for (size_type i = 0; i < n; i++)
-			_alloc.construct(_start + i, val);
+			_allocator.construct(_first + i, val);
 		_size = n;
 	}
 
@@ -156,25 +156,25 @@ public:
 
 	/* get_allocator */
 	allocator_type get_allocator() const
-	{ return _alloc; }
+	{ return _allocator; }
 
 	/* front */
 	reference front()
-	{ return *_start; }
+	{ return *_first; }
 
 	const_reference front() const
-	{ return *_start; }
+	{ return *_first; }
 
 	/* back */
 	reference back()
-	{return _start[size - 1]; }
+	{return _first[size - 1]; }
 
 	const_reference back() const
-	{return _start[size - 1]; }
+	{return _first[size - 1]; }
 
 	/* data */
 	pointer data()
-	{ return _start; }
+	{ return _first; }
 
 	/* empty */
 	bool empty() const
@@ -186,7 +186,7 @@ public:
 
 	/* max_size */
 	size_type max_size() const{
-		return _alloc.max_size();
+		return _allocator.max_size();
 	}
 
 	/* capacity */
@@ -204,7 +204,7 @@ public:
 		if(!size)/* Нужна ли проверка? */
 			return ;
 		--_size;
-		_alloc.destroy(_start + _size);
+		_allocator.destroy(_first + _size);
 	}
 
 	/* resize */
@@ -212,31 +212,31 @@ public:
 	{
 		reserve(count);
 		for(;_size > count; --_size)
-			_alloc.destroy(_start + _size - 1);
+			_allocator.destroy(_first + _size - 1);
 		for(;_size < count;++_size)
-			_alloc.construct(_start + _size, value);
+			_allocator.construct(_first + _size, value);
 	}
 
 	/* swap */
 	void swap (vector& other){
-		std::swap(_start, other._start);
+		std::swap(_first, other._first);
 		std::swap(_size, other._size);
 		std::swap(_capacity, other._capacity);
-		std::swap(_alloc, other._alloc);
+		std::swap(_allocator, other._allocator);
 
 	}
 
 	iterator begin(){
-		return (iterator(_start));
+		return (iterator(_first));
 	}
 	const_iterator begin() const{
-		return (const_iterator(_start));
+		return (const_iterator(_first));
 	}
 	iterator end(){
-		return (iterator(_start + _size));
+		return (iterator(_first + _size));
 	}
 	const_iterator end() const{
-		return (const_iterator(_start + _size));
+		return (const_iterator(_first + _size));
 	}
 /*
 	reverse_iterator rbegin(){
@@ -263,32 +263,32 @@ public:
 		if (_size == _capacity)
 		{
 			_capacity = _capacity * 2 + (_capacity == 0);
-			pointer new_ptr = _alloc.allocate(_capacity);
+			pointer new_ptr = _allocator.allocate(_capacity);
 			size_type i = 0;
 			try{
 				for(; i < _size ; ++i)
 					if (i_pos == i)
-						_alloc.construact(new_ptr + i, val);
+						_allocator.construact(new_ptr + i, val);
 					else
-						_alloc.construct(new_ptr + i + (i_pos < i), _start[i]);
+						_allocator.construct(new_ptr + i + (i_pos < i), _first[i]);
 			}catch(...){
 				for (size_type j = 0; j < i; ++j)
-					_alloc.destroy(new_ptr + i);
-				_alloc.deallocate(new_ptr, _capacity);
+					_allocator.destroy(new_ptr + i);
+				_allocator.deallocate(new_ptr, _capacity);
 				throw ;
 			}
 			this->~vector();
-			_start = new_ptr;
-			return iterator (_start + i_pos);
+			_first = new_ptr;
+			return iterator (_first + i_pos);
 		}
 		for (size_type i = _size; i > i_pos; i--){
-			_alloc.destroy(_start + i);
-			_alloc.construct(_start + i, *(_start + i - 1));
+			_allocator.destroy(_first + i);
+			_allocator.construct(_first + i, *(_first + i - 1));
 		}
-		_alloc.destroy(&(*pos));
-		_alloc.construct(&(*pos), val);
+		_allocator.destroy(&(*pos));
+		_allocator.construct(&(*pos), val);
 		_size++;
-		return iterator(_start + i_pos);
+		return iterator(_first + i_pos);
 	}
 
 	void insert (iterator position, size_type n, const_reference val){
@@ -324,10 +324,76 @@ public:
 		}
 	}
 
+	template <class InputIterator>
+	void insert (iterator position, InputIterator first, InputIterator last, typename enable_if<!is_integral<InputIterator>::value>::type* = 0){
+		size_type count = static_cast<size_type>(std::distance(last, first));
+		size_type start = static_cast<size_type>(std::distance(position, begin()));
+		if (_size + count > _capacity) {
+			size_type new_cap = std::max(_capacity * 2, _size + count);
+			pointer new_arr = _allocator.allocate(new_cap);
+			std::uninitialized_copy(begin(), position, iterator(new_arr));
+			size_type i = 0;
+			try {
+				for (; i < count; ++i)
+					_allocator.construct(new_arr + start + i, *(first + i));
+			}
+			catch (...){
+				for (size_type j = 0; j < i + start; ++j)
+					_allocator.destroy(new_arr + j);
+				_allocator.deallocate(new_arr, new_cap);
+				throw;
+			}
+			std::uninitialized_copy(position, end(), iterator(new_arr + start + count));
+			for (size_type i = 0; i < _size; i++)
+				_allocator.destroy(_first + i);
+			_allocator.deallocate(_first, _capacity);
+			_size += count;
+			_capacity = new_cap;
+			_first = new_arr;
+		}
+		else {
+			for (size_type i = _size; i > static_cast<size_type>(start); i--) {
+				_allocator.destroy(_first + i + count - 1);
+				_allocator.construct(_first + i + count - 1, *first + i - 1);
+			}
+			for (size_type i = 0; i < static_cast<size_type>(count); i++, first++) {
+				_allocator.destroy(_first + i + count);
+				_allocator.construct(_first + start + i, *first);
+			}
+			_size += count;
+		}
+	}
+
+	iterator erase (iterator position){
+		size_type i = static_cast<size_type>(std::distance(begin(), position));
+		for (; i < _size - 1; ++i){
+			_allocator.destroy(_first + i);
+			_allocator.construct(_first + i, *(_first + i + 1));
+		}
+		_size--;
+		_allocator.destroy(_first + _size - 1);
+		return position;
+	}
+
+	iterator erase (iterator first, iterator last){
+		difference_type start = std::distance(begin(), first);
+		difference_type need_to_copy = std::distance(last, end());
+		for(size_type i = 0; first + i != last; ++i)
+			_allocator.destroy(&(*(first + i)));
+		if(last == end()) {
+			size -= std::distance(first, last);
+			return end();
+		}
+		for(size_type i = 0; last + i < end(); ++i)
+		{
+			_allocator.construct(first + i, *(last + i));
+			_allocator.destroy(last + i);
+		}
+		return first;
+	}
+
 	/* TODO:
 	 * Iterator +- готово
-	 * insert
-	 * erase
 	 * Non-member functions
 	 * */
 
