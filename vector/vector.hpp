@@ -7,8 +7,6 @@
 
 namespace ft{
 
-
-
 	template < class T, class Allocator = std::allocator<T> > class vector{
 
 		template< typename L>class RandomAccessIterator
@@ -361,7 +359,7 @@ namespace ft{
 				_capacity = count;
 			}
 			for(pointer ptr = _first; first != last; ++first, ++ptr)
-				_allocator.construct(ptr, first)
+				_allocator.construct(ptr, first);
 			_size = count;
 		}
 
@@ -381,7 +379,7 @@ namespace ft{
 			if(_size == _capacity)
 				reserve(std::max(1, _capacity * 2));
 			_allocator.construct(_first + _size, val);
-			_size++
+			++_size;
 		}
 
 		void pop_back(){
@@ -460,18 +458,19 @@ namespace ft{
 			if (position < begin() || position > end() || first > last)
 				throw std::logic_error("vector");
 			size_type start = static_cast<size_type>(std::distance(begin(), position));
-			size_type count = static_cast<size_type>(last - first);
+			size_type count = static_cast<size_type>(std::distance(first, last));
 			if (_size + count > _capacity) {
-				size_type new_cap = _capacity * 2 >= _size + count ? _capacity * 2 : _size + count;
+				size_type new_cap = std::max(_size + count, _capacity * 2);
 				pointer new_arr = _allocator.allocate(new_cap);
 				std::uninitialized_copy(begin(), position, iterator(new_arr));
+				size_type i = 0;
 				try {
-					for (size_type i = 0; i < static_cast<size_type>(count); i++, first++)
+					for (; i < count; i++, first++)
 						_allocator.construct(new_arr + start + i, *first);
 				}
 				catch (...){
-					for (size_type i = 0; i < count + start; ++i)
-						_allocator.destroy(new_arr + i);
+					for (size_type j = start; j < i; ++j)
+						_allocator.destroy(new_arr + j);
 					_allocator.deallocate(new_arr, new_cap);
 					throw;
 				}
@@ -482,18 +481,17 @@ namespace ft{
 				_size += count;
 				_capacity = new_cap;
 				_first = new_arr;
+				return;
 			}
-			else {
-				for (size_type i = _size; i > static_cast<size_type>(start); i--) {
-					_allocator.destroy(_first + i + count - 1);
-					_allocator.construct(_first + i + count - 1, *(_first + i - 1));
-				}
-				for (size_type i = 0; i < static_cast<size_type>(count); i++, first++) {
-					_allocator.destroy(_first + i + count);
-					_allocator.construct(_first + start + i, *first);
-				}
-				_size += count;
+			for (size_type i = _size; i > start; i--) {
+				_allocator.destroy(_first + i + count - 1);
+				_allocator.construct(_first + i + count - 1, *(_first + i - 1));
 			}
+			for (size_type i = 0; i < count; i++, first++) {
+				_allocator.destroy(_first + i + count);
+				_allocator.construct(_first + start + i, *first);
+			}
+			_size += count;
 		}
 
 		//single element
@@ -512,23 +510,21 @@ namespace ft{
 		iterator erase (iterator first, iterator last){
 			difference_type start = std::distance(begin(), first);
 			difference_type need_to_copy = std::distance(last, end());
-			bool last_is_end = (last == end());
 			while (first != last){
 				_allocator.destroy(&(*first));
 				first++;
 			}
 			size_type i = start;
-			while (last < end()){
+			while (last + i < end()){
 				if (this->_first + start)
 					_allocator.destroy(_first + i);
-				_allocator.construct(_first + i, *last);
+				_allocator.construct(_first + i, *(last + i));
 				i++;
-				last++;
 			}
 			for (size_type i = start + need_to_copy; i < _size; i++)
 				_allocator.destroy(_first + i);
 			_size = start + need_to_copy;
-			return last_is_end ? end() : iterator(_first + start);
+			return last;
 		}
 
 		void swap (vector& x){
@@ -536,7 +532,6 @@ namespace ft{
 			std::swap(_size, x._size);
 			std::swap(_capacity, x._capacity);
 			std::swap(_allocator, x._allocator);
-
 		}
 
 		void clear(){
