@@ -1,24 +1,59 @@
 #ifndef UTILITY_HPP
 #define UTILITY_HPP
 
+
 namespace ft{
+
 	template<class T> struct remove_const { typedef T type; };
+
 	template<class T> struct remove_const <const T> { typedef T type; };
 
-	template<class T1, class T2>
-	struct pair
+
+	template <class Iterator> class iterator_traits
+	{
+	public:
+		typedef typename Iterator::difference_type		difference_type;
+		typedef typename Iterator::value_type			value_type;
+		typedef typename Iterator::pointer				pointer;
+		typedef typename Iterator::reference			reference;
+		typedef typename Iterator::iterator_category	iterator_category;
+	};
+
+	template <class T> class iterator_traits<T*>
+	{
+	public:
+		typedef std::ptrdiff_t	difference_type;
+		typedef T				value_type;
+		typedef T*				pointer;
+		typedef T&				reference;
+
+		typedef	std::random_access_iterator_tag	iterator_category;
+	};
+
+	template <class T> class iterator_traits<const T*>
+	{
+	public:
+		typedef std::ptrdiff_t		difference_type;
+		typedef const T				value_type;
+		typedef const T*			pointer;
+		typedef const T&			reference;
+
+		typedef	std::random_access_iterator_tag	iterator_category;
+	};
+
+	template<class T1, class T2> struct pair
 	{
 		typedef T1 first_type;
 		typedef T2 second_type;
 
 		first_type	first;
 		second_type	second;
-		pair() : first(first_type()), second(second_type()) {}
+		pair() : first(), second() {}
 		template <class U, class V>
-		pair(const pair<U, V>& pr) : first(pr.first), second(pr.second) {}
-		pair(const pair& pr) : first(pr.first), second(pr.second) {}
-		pair(const first_type& a, const second_type& b) : first(a), second(b) {}
-		pair& operator=(const pair &pr) {
+		pair(const pair<U, V> &pr) : first(pr.first), second(pr.second) {}
+		pair(const pair & pr) : first(pr.first), second(pr.second) {}
+		pair(const first_type &a, const second_type &b) : first(a), second(b) {}
+		pair &operator=(const pair &pr) {
 			first = pr.first;
 			second = pr.second;
 			return (*this);
@@ -64,8 +99,8 @@ namespace ft{
 	template<class T, bool v>
 	struct integral_constant {
 		static const bool value = v;
-		typedef T					value_type;
-		typedef integral_constant	type;
+		typedef T value_type;
+		typedef integral_constant type;
 		operator value_type() const { return value; }
 	};
 
@@ -126,7 +161,7 @@ namespace ft{
 	bool equal ( InputIterator1 first1, InputIterator1 last1, InputIterator2 first2 )
 	{
 		while (first1!=last1) {
-			if (!(*first1 == *first2))
+			if (!(*first1 == *first2))   // or: if (!pred(*first1,*first2)), for version 2
 				return false;
 			++first1; ++first2;
 		}
