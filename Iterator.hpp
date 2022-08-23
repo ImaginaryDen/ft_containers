@@ -141,16 +141,17 @@ namespace ft {
 			}
 		}
 	public:
-		typedef T                                            				iterator_type;
-		typedef Pair                                            			value_type;
-		typedef ptrdiff_t                                       			difference_type;
-		typedef Pair&                                           			reference;
-		typedef const Pair&                                     			const_reference;
-		typedef Pair*                                           			pointer;
-		typedef const Pair*                                     			const_pointer;
+		typedef T			iterator_type;
+		typedef Pair		value_type;
+		typedef ptrdiff_t	difference_type;
+		typedef Pair&		reference;
+		typedef const Pair&	const_reference;
+		typedef Pair*		pointer;
+		typedef const Pair*	const_pointer;
 		typedef typename iterator_traits<iterator_type>::iterator_category  iterator_category;
 
-		node_iterator(T value = nullptr) : node(value){};
+		node_iterator(T value = nullptr)
+			: node(value){};
 		~node_iterator(){};
 		template <class U, class Z> node_iterator(const node_iterator<U, Z>& other,
 			typename ft::enable_if<std::is_convertible<U, T>::value>::type* = 0)
