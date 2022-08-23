@@ -207,11 +207,12 @@ namespace ft {
 		~reverse_iterator(){};
 		template <class U> reverse_iterator(const reverse_iterator<U>& other,
 				typename ft::enable_if<std::is_convertible<U, T>::value>::type* = 0)
-						: iterator(other.base()) 					{};
-		reverse_iterator	&operator=(const reverse_iterator &obj)					{ iterator = obj.iterator; return *this; }
-		iterator_type 		base() const								{ return iterator; }
-		reference 		operator*()		                         			{ return *iterator; }
-		pointer 		operator->()		                          			{ return &(operator*()); }
+						: iterator(other.base()) {};
+		reverse_iterator &operator=(const reverse_iterator &obj) { iterator = obj.iterator; return *this; }
+		iterator_type base() const { return iterator; }
+		reference operator*() { return *iterator; }
+		pointer operator->() { return &(operator*()); }
+
 		reverse_iterator& operator++()
 			{ --iterator; return *this; }
 		reverse_iterator operator++(int)
