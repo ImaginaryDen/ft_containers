@@ -24,7 +24,8 @@ public:
 	Node_<value_type> sentinel;
 	Node_<value_type> *root;
 	size_t m_size;
-	Tree() : m_size(0) {
+	Tree() : m_size(0)
+	{
 		sentinel.left = &sentinel;
 		sentinel.right = &sentinel;
 		sentinel.begin = &sentinel;
@@ -34,8 +35,7 @@ public:
 		root = &sentinel;
 	}
 
-	Tree(Tree<value_type> &other)
-			: m_size(0)
+	Tree(Tree<value_type> &other) : m_size(0)
 	{
 		sentinel.left = &sentinel;
 		sentinel.right = &sentinel;
@@ -46,7 +46,8 @@ public:
 		root = &sentinel;
 	}
 
-	Tree& operator=(const Tree<value_type>& other) {
+	Tree& operator=(const Tree<value_type>& other)
+	{
 		if (this == &other)
 			return *this;
 		root = other.root;
@@ -59,51 +60,60 @@ public:
 		Node_<value_type> *y = x->right;
 
 		x->right = y->left;
-		if (!y->left->NIL)  y->left->parent = x;
-		if (!y->NIL) y->parent = x->parent;
-		if (x->parent) {
-			if (x == x->parent->left) {
+		if (!y->left->NIL)
+			y->left->parent = x;
+		if (!y->NIL)
+			y->parent = x->parent;
+		if (x->parent)
+		{
+			if (x == x->parent->left)
 				x->parent->left = y;
-			}
-			else {
+			else
 				x->parent->right = y;
-			}
-		} else {
+		} else
 			root = y;
-		}
 		y->left = x;
-		if (!x->NIL) x->parent = y;
+		if (!x->NIL)
+			x->parent = y;
 	}
 
 	void rotateRight(Node_<value_type> *x) {
 		Node_<value_type> *y = x->left;
 
 		x->left = y->right;
-		if (!y->right->NIL) y->right->parent = x;
-		if (!y->NIL) y->parent = x->parent;
-		if (x->parent) {
+		if (!y->right->NIL)
+			y->right->parent = x;
+		if (!y->NIL)
+			y->parent = x->parent;
+		if (x->parent)
+		{
 			if (x == x->parent->right)
 				x->parent->right = y;
 			else
 				x->parent->left = y;
-		} else {
+		} else
 			root = y;
-		}
 		y->right = x;
 		if (!x->NIL) x->parent = y;
 	}
 
-	void insertFixup(Node_<value_type> *x) {
-		while (x != root && x->parent->color == 1) {
-			if (x->parent == x->parent->parent->left) {
+	void insertFixup(Node_<value_type> *x)
+	{
+		while (x != root && x->parent->color == 1)
+		{
+			if (x->parent == x->parent->parent->left)
+			{
 				Node_<value_type> *y = x->parent->parent->right;
-				if (y->color == 1) {
+				if (y->color == 1)
+				{
 					x->parent->color = 0;
 					y->color = 0;
 					x->parent->parent->color = 1;
 					x = x->parent->parent;
-				} else {
-					if (x == x->parent->right) {
+				} else
+				{
+					if (x == x->parent->right)
+					{
 						x = x->parent;
 						rotateLeft(x);
 					}
@@ -111,15 +121,19 @@ public:
 					x->parent->parent->color = 1;
 					rotateRight(x->parent->parent);
 				}
-			} else {
+			} else
+			{
 				Node_<value_type> *y = x->parent->parent->left;
-				if (y->color == 1) {
+				if (y->color == 1)
+				{
 					x->parent->color = 0;
 					y->color = 0;
 					x->parent->parent->color = 1;
 					x = x->parent->parent;
-				} else {
-					if (x == x->parent->left) {
+				} else
+				{
+					if (x == x->parent->left)
+					{
 						x = x->parent;
 						rotateRight(x);
 					}
@@ -150,7 +164,8 @@ public:
 				{
 					w->color = 1;
 					x = x->parent;
-				} else {
+				} else
+				{
 					if (w->right->color == 0) {
 						w->left->color = 0;
 						w->color = 1;
@@ -163,8 +178,7 @@ public:
 					rotateLeft (x->parent);
 					x = root;
 				}
-			}else
-			{
+			}else{
 				Node_<value_type> *w = x->parent->left;
 				if (w->color == 1)
 				{
@@ -179,7 +193,8 @@ public:
 					x = x->parent;
 				} else
 				{
-					if (w->left->color == 0) {
+					if (w->left->color == 0)
+					{
 						w->right->color = 0;
 						w->color = 1;
 						rotateLeft (w);
@@ -205,7 +220,8 @@ public:
 
 		if (z->left->NIL || z->right->NIL) {
 			y = z;
-		} else
+		}
+		else
 		{
 			y = z->right;
 			while (!y->left->NIL)
@@ -225,7 +241,8 @@ public:
 				y->parent->right = x;
 		else
 			root = x;
-		if (y != z) {
+		if (y != z)
+		{
 			delete z->pair;
 			value_type *p = new value_type(*y->pair);
 			z->pair = p;
@@ -242,25 +259,22 @@ public:
 
 	Node_<value_type>* getBegin() {
 		Node_<value_type>* tmp = root;
-		while (!tmp->left->NIL) {
+		while (!tmp->left->NIL)
 			tmp = tmp->left;
-		}
 		return tmp;
 	}
 
 	Node_<value_type>* getLast() {
 		Node_<value_type>* tmp = root;
-		while (!tmp->right->NIL) {
+		while (!tmp->right->NIL)
 			tmp = tmp->right;
-		}
 		return tmp;
 	}
 
 	Node_<value_type>* getEnd() {
 		Node_<value_type>* tmp = root;
-		while (!tmp->right->NIL) {
+		while (!tmp->right->NIL)
 			tmp = tmp->right;
-		}
 		return tmp->right;
 	}
 };

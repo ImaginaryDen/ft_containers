@@ -177,7 +177,8 @@ public:
 		return end();
 	}
 
-	const_iterator find( const Key& key ) const {
+	const_iterator find( const Key& key ) const
+	{
 		Node_<value_type> *current = _tree->root;
 
 		while (!current->NIL) {
@@ -189,20 +190,25 @@ public:
 		return end();
 	}
 
-	iterator lower_bound( const Key& key ) {
+	iterator lower_bound( const Key& key )
+	{
 		Node_<value_type> *current = _tree->root;
 
-		while (!current->NIL) {
+		while (!current->NIL)
+		{
 			if (key == *current->pair)
 				return iterator(current);
-			else {
-				if (_comp(key, *current->pair)) {
+			else
+			{
+				if (_comp(key, *current->pair))
+				{
 					if (!current->left->NIL)
 						current = current->left;
 					else
 						return iterator(current);
 				}
-				else {
+				else
+				{
 					if (!current->right->NIL)
 						current = current->right;
 					else
@@ -213,20 +219,24 @@ public:
 		return end();
 	}
 
-	const_iterator lower_bound( const Key& key ) const {
+	const_iterator lower_bound( const Key& key ) const
+	{
 		Node_<value_type> *current = _tree->root;
 
-		while (!current->NIL) {
+		while (!current->NIL)
+		{
 			if (key == *current->pair)
 				return const_iterator(current);
 			else {
-				if (_comp(key, *current->pair)) {
+				if (_comp(key, *current->pair))
+				{
 					if (!current->left->NIL)
 						current = current->left;
 					else
 						return const_iterator(current);
 				}
-				else {
+				else
+				{
 					if (!current->right->NIL)
 						current = current->right;
 					else
@@ -237,39 +247,45 @@ public:
 		return end();
 	}
 
-	iterator upper_bound( const Key& key ) {
+	iterator upper_bound( const Key& key )
+	{
 		iterator tmp = lower_bound(key);
-
 		return (tmp == end()) ? tmp : (_comp(key, *tmp)) ? tmp : ++tmp;
 	}
 
-	const_iterator upper_bound( const Key& key ) const {
+	const_iterator upper_bound( const Key& key ) const
+	{
 		const_iterator tmp = lower_bound(key);
-
 		return (tmp == end()) ? tmp : (_comp(key, *tmp)) ? tmp : ++tmp;
 	}
 
-	ft::pair<iterator,iterator> equal_range( const Key& key ) {
+	ft::pair<iterator,iterator> equal_range( const Key& key )
+	{
 		return ft::pair<iterator, iterator>(lower_bound(key), upper_bound(key));
 	}
 
-	ft::pair<const_iterator,const_iterator> equal_range( const Key& key ) const {
+	ft::pair<const_iterator,const_iterator> equal_range( const Key& key ) const
+	{
 		return ft::pair<const_iterator, const_iterator>(lower_bound(key), upper_bound(key));
 	}
 
-	key_compare key_comp() const {
+	key_compare key_comp() const
+	{
 		return _comp;
 	}
 
-	Set::value_compare value_comp() const {
+	Set::value_compare value_comp() const
+	{
 		return _comp;
 	}
 
-	friend bool operator== (const Set &lhs, const Set &rhs) {
+	friend bool operator== (const Set &lhs, const Set &rhs)
+	{
 		return lhs.size() == rhs.size() && ft::equal(lhs.begin(), lhs.end(), rhs.begin());
 	}
 	friend bool operator!= (const Set &lhs, const Set &rhs) {return !(lhs == rhs);}
-	friend bool operator< (const Set &lhs, const Set &rhs) {
+	friend bool operator< (const Set &lhs, const Set &rhs)
+	{
 		return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
 	}
 	friend bool operator> (const Set &lhs, const Set &rhs) {return rhs < lhs;}
@@ -282,14 +298,16 @@ private:
 	{
 		if (!t->left->NIL)
 			fillTree(t->left);
-		if (!t->NIL) insert(*t->pair);
+		if (!t->NIL)
+			insert(*t->pair);
 		if (!t->right->NIL)
 			fillTree(t->right);
 	}
 
 	void clearTree(Node_<value_type> *tmp)
 	{
-		if (tmp->NIL) return;
+		if (tmp->NIL)
+			return;
 		if (!tmp->left->NIL) clearTree(tmp->left);
 		if (!tmp->right->NIL) clearTree(tmp->right);
 		_allocator_rebind_node.destroy(tmp);
@@ -309,11 +327,11 @@ private:
 
 		current = hint;
 		parent = 0;
-		while (!current->NIL) {
+		while (!current->NIL)
+		{
 			if (value == *current->pair) return ft::make_pair(current, false);
 			parent = current;
-			current = _comp(value, *current->pair) ?
-					current->left : current->right;
+			current = _comp(value, *current->pair) ? current->left : current->right;
 		}
 		x = _allocator_rebind_node.allocate(sizeof(Node_<value_type>));
 		_allocator_rebind_node.construct(x, value);
@@ -326,12 +344,15 @@ private:
 				parent->left = x;
 			else
 				parent->right = x;
-		} else {
+		} else
+		{
 			_tree->root = x;
 		}
 		_tree->insertFixup(x);
-		if (x == _tree->getLast()) { _tree->sentinel.parent = x; }
-		if (x == _tree->getBegin()) { _tree->sentinel.begin = x; }
+		if (x == _tree->getLast())
+			_tree->sentinel.parent = x;
+		if (x == _tree->getBegin())
+			_tree->sentinel.begin = x;
 		_tree->m_size++;
 		return (ft::make_pair(x, true));
 	}

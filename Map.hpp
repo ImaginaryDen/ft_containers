@@ -4,8 +4,9 @@
 #include "Iterator.hpp"
 #include "Node.hpp"
 
-namespace ft {
-template <class Key, class T, class Compare = std::less<Key>, class A = std::allocator<std::pair<const Key, T> > >
+namespace ft
+{
+template < class Key, class T, class Compare = std::less<Key>, class A = std::allocator< std::pair<const Key, T> > >
 class Map
 {
 public:
@@ -360,19 +361,20 @@ private:
 		x->right = &_tree->sentinel;
 		x->color = 1;
 
-		if (parent) {
+		if (parent)
+		{
 			if (_comp(value.first, parent->pair->first))
 				parent->left = x;
 			else
 				parent->right = x;
-		} else {
+		} else
 			_tree->root = x;
-		}
 
 		_tree->insertFixup(x);
-
-		if (x == _tree->getLast()) { _tree->sentinel.parent = x; }
-		if (x == _tree->getBegin()) { _tree->sentinel.begin = x; }
+		if (x == _tree->getLast())
+			_tree->sentinel.parent = x;
+		if (x == _tree->getBegin())
+			_tree->sentinel.begin = x;
 		_tree->m_size++;
 		return (ft::make_pair(x, true));
 	}
