@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 namespace ft {
 	template <class T, class A>
 	class Vector;

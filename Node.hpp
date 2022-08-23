@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 template <class value_type>
 struct Node_ {
 public:
